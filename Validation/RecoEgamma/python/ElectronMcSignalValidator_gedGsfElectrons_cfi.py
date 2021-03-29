@@ -18,7 +18,7 @@ electronMcSignalHistosCfg = cms.PSet(
   Nbinpoptrue = cms.int32(75), Poptruemin = cms.double(0.0), Poptruemax = cms.double(1.5),
   Nbinerror = cms.int32(30), Energyerrormax = cms.double(30.0),
   EfficiencyFlag = cms.bool(True), StatOverflowFlag = cms.bool(False),
-  NbinOPV = cms.int32(81), OPV_min = cms.double(-0.5), OPV_max = cms.double(79.5), # OPV : Offline Primary Vertices
+  NbinOPV = cms.int32(80), OPV_min = cms.double(-0.5), OPV_max = cms.double(79.5), # OPV : Offline Primary Vertices
   NbinELE = cms.int32(11), ELE_min = cms.double(-0.5), ELE_max = cms.double(10.5), # ELE : recEleNum
   NbinCORE = cms.int32(21), CORE_min = cms.double(-0.5), CORE_max = cms.double(20.5), # CORE : recCoreNum
   NbinTRACK = cms.int32(41), TRACK_min = cms.double(-0.5), TRACK_max = cms.double(40.5), # TRACK : recTrackNum
@@ -84,15 +84,15 @@ phase2_hgcal.toModify(
     electronSeedCollection = 'electronMergedSeedsFromMultiCl',
     MaxAbsEta = cms.double(3.0),
     histosCfg = dict( 
-        Nbineta = 60 ,
-        Nbineta2D = 60 ,
-        Etamin = -3.0 ,
-        Etamax = 3.0 ,
- 
+        Nbineta = cms.int32(60) ,
+        Nbineta2D = cms.int32(60) ,
+        Etamin = cms.double(-3.0) ,
+        Etamax = cms.double(3.0) ,
+
         NbinOPV = cms.int32(125), OPV_min = cms.double(-0.5), OPV_max = cms.double(249.5) ,
         NbinELE = cms.int32(100), ELE_min = cms.double(-0.5), ELE_max = cms.double(999.5) ,
         NbinCORE = cms.int32(100), CORE_min = cms.double(-0.5), CORE_max = cms.double(999.5) ,
         NbinTRACK = cms.int32(100), TRACK_min = cms.double(-0.5), TRACK_max = cms.double(999.5) ,
         NbinSEED = cms.int32(100), SEED_min = cms.double(-0.5), SEED_max = cms.double(9999.5) ,
-   ),
+    ),
 )
