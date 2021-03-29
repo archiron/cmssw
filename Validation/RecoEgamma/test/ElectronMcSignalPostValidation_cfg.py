@@ -7,7 +7,7 @@ from electronValidationCheck_Env import env
 cmsEnv = env() # be careful, cmsEnv != cmsenv. cmsEnv is local
 
 cmsEnv.checkSample() # check the sample value
-cmsEnv.checkValues()
+cmsEnv.checkValues() 
 
 if cmsEnv.beginTag() == 'Run2_2017':
     from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
@@ -31,13 +31,26 @@ process.load('DQMOffline.Configuration.DQMOffline_cff')
 # actually read in the DQM root file
 process.load("DQMServices.Components.DQMFileReader_cfi")
 
+# others
+# import of standard configurations
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.Geometry.GeometryExtended2026D76Reco_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
+process.load('Configuration.StandardSequences.Harvesting_cff')
+
+
 from DQMServices.Components.DQMStoreStats_cfi import *
 dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
+print('= inputPostFile : %s' % os.environ['inputPostFile'])
 t1 = os.environ['inputPostFile'].split('.')
-localFileInput = os.environ['inputPostFile'].replace(".root", "_a.root") #
+localFileInput = os.environ['inputPostFile'].replace("_a.root", ".root") #
 # Source
 process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring("file:" + localFileInput),
 secondaryFileNames = cms.untracked.vstring(),)
@@ -47,7 +60,7 @@ process.electronMcSignalPostValidator.OutputFolderName = cms.string("EgammaV/Ele
 
 from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
-process.GlobalTag.globaltag = '93X_upgrade2023_realistic_v2'
+process.GlobalTag.globaltag = '113X_mcRun4_realistic_v4'
 #process.GlobalTag.globaltag = '93X_mc2017_realistic_v1'
 #process.GlobalTag.globaltag = '92X_upgrade2017_realistic_v10'
 

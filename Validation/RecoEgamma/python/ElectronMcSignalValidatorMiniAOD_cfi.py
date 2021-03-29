@@ -36,6 +36,7 @@ electronMcSignalValidatorMiniAOD = DQMEDAnalyzer('ElectronMcSignalValidatorMiniA
 
     mcTruthCollection = cms.InputTag("prunedGenParticles"),
     electrons = cms.InputTag("slimmedElectrons"),
+    electrons_endcaps = cms.InputTag("slimmedElectrons"), # temp for miniAOD tests
     
     MaxPt = cms.double(100.0),
     DeltaR = cms.double(0.05),
@@ -44,4 +45,18 @@ electronMcSignalValidatorMiniAOD = DQMEDAnalyzer('ElectronMcSignalValidatorMiniA
     MatchingMotherID = cms.vint32(23,24,-24,32),
     histosCfg = cms.PSet(electronMcSignalHistosCfg),
     isolationCfg = cms.PSet(electronPFIsolationCfg),
+)
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify(
+    electronMcSignalValidatorMiniAOD,
+    #electrons = cms.InputTag("slimmedElectronsFromMultiCl"),
+    electrons_endcaps = cms.InputTag("slimmedElectronsFromMultiCl"),
+    MaxAbsEta = cms.double(3.0),
+    histosCfg = dict( 
+        Nbineta = 60 ,
+        Nbineta2D = 60 ,
+        Etamin = -3.0 ,
+        Etamax = 3.0 ,
+   ),
 )

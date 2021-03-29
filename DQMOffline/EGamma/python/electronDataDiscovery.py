@@ -30,8 +30,11 @@ from __future__ import print_function
 # All except DD_SOURCE can use wildcard *.
 #===================================================================
 
-#import httplib, urllib, urllib2, types, string, os, sys
-import os, sys, re, das_client
+import os, sys, re#, das_client
+import httplib, urllib, urllib2, types, string# , os, sys
+import Utilities.General.cmssw_das_client as das_client
+import json
+from json import loads, dumps
 
 if 'DD_SOURCE' not in os.environ:
   os.environ['DD_SOURCE'] = 'das'
@@ -55,10 +58,21 @@ dd_run_re = re.compile(os.environ['DD_RUN'].replace('*','.*')) ;
 
 def common_search(dd_tier):
 
+  print('eDD : DD_SOURCE : %s ' % os.environ['DD_SOURCE'])
+  print('DD_RELEASE', os.environ['DD_RELEASE'])
+  print('DD_SAMPLE', os.environ['DD_SAMPLE'])
+  #print('DD_SAMPLE_OUT', os.environ['DD_SAMPLE_OUT']) # not in os.environ
+  print('DD_COND', os.environ['DD_COND'])
+  print('DD_TIER', os.environ['DD_TIER'])
+  print('DD_SOURCE', os.environ['DD_SOURCE'])
+  #print('outputFile    :', os.environ['outputFile']) # not in os.environ
+  #print('inputPostFile :', os.environ['inputPostFile']) # not in os.environ
   dd_tier_re = re.compile(dd_tier.replace('*','.*')) ;
 
   if os.environ['DD_SOURCE'] == "das":
   
+    print('das demande')
+
     query = "dataset instance=cms_dbs_prod_global"
     if os.environ['DD_RELEASE'] != "" :
       query = query + " release=" + os.environ['DD_RELEASE']
@@ -115,6 +129,8 @@ def common_search(dd_tier):
     if data['nresults']==0:
       print('[electronDataDiscovery.py] No DAS file in dataset:', dataset)
       return []
+    else:
+      print('there is %d results' % nresults)
       
     result = []
     for i in range(0,data['nresults']):
@@ -158,7 +174,7 @@ def common_search(dd_tier):
       input = input + separator + "run = " + os.environ['DD_RUN']
       separator = " and "
     input = input + separator + "dataset like *" + os.environ['DD_COND'] + "*" + dd_tier + "*"
-    
+    print('input : %s' % input)    
     url = "https://cmsweb.cern.ch:443/dbs_discovery/aSearch"
     final_input = urllib.quote(input) ;
     
@@ -264,11 +280,18 @@ def common_search(dd_tier):
   return result
 
 def search():
+  print('search in %s' % 'DD_TIER')
   return common_search(os.environ['DD_TIER'])
 
 def search2():
   return common_search(os.environ['DD_TIER_SECONDARY'])
 
-	
-	
-
+def getCMSdata( data, dbs="prod/global" ):
+  # Read DAS database.
+  cmd = 'dasgoclient --query="file dataset=DATA instance=DBS" | sort'
+  cmd2 = cmd.replace('DATA',data).replace('DBS',dbs)
+  files = os.popen(cmd2).read()
+  # Create python list containing file names.
+  flist = files.split('\n')
+  del flist[-1]
+  return flist
