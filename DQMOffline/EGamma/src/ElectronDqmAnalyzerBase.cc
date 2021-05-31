@@ -14,15 +14,10 @@
 #include <algorithm>
 #include <sstream>
 
-ElectronDqmAnalyzerBase::ElectronDqmAnalyzerBase(const edm::ParameterSet &conf)
-    : ElectronDqmCommonBase(conf) {
-}
+ElectronDqmAnalyzerBase::ElectronDqmAnalyzerBase(const edm::ParameterSet &conf) : ElectronDqmCommonBase(conf) {}
 
 ElectronDqmAnalyzerBase::~ElectronDqmAnalyzerBase() {}
 
 void ElectronDqmAnalyzerBase::bookHistograms(DQMStore::IBooker &ibooker_, edm::Run const &, edm::EventSetup const &) {
   edm::LogInfo("DQMAnalyzeBase::bookHistograms") << std::endl;
 }
-
-
-

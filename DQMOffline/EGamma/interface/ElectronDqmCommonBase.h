@@ -21,7 +21,7 @@ public:
 
 protected:
   explicit ElectronDqmCommonBase(const edm::ParameterSet &conf);
-  ~ElectronDqmCommonBase(); // override;
+  ~ElectronDqmCommonBase();  // override;
 
   // utility methods
   void setBookPrefix(const std::string &);
@@ -50,7 +50,7 @@ protected:
                          double highX,
                          const std::string &titleX = "",
                          const std::string &titleY = "Events",
-                         Option_t *option = "E1 P");/**/
+                         Option_t *option = "E1 P"); /**/
 
   MonitorElement *bookH1withSumw2(DQMStore::IBooker &,
                                   const std::string &name,
@@ -99,8 +99,6 @@ protected:
                          const std::string &titleX = "",
                          const std::string &titleY = "",
                          Option_t *option = "E1 P");
-
-
 
   // Features for ElectronDqmHarvesterBase
   MonitorElement *bookH1andDivide(DQMStore::IBooker &iBooker,

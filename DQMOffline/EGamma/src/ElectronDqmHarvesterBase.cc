@@ -15,8 +15,7 @@
 #include <sstream>
 
 ElectronDqmHarvesterBase::ElectronDqmHarvesterBase(const edm::ParameterSet &conf)
-    : ElectronDqmCommonBase(conf), finalDone_(false) {
-}
+    : ElectronDqmCommonBase(conf), finalDone_(false) {}
 
 ElectronDqmHarvesterBase::~ElectronDqmHarvesterBase() {}
 
@@ -50,4 +49,3 @@ void ElectronDqmHarvesterBase::dqmEndJob(DQMStore::IBooker &iBooker, DQMStore::I
 void ElectronDqmHarvesterBase::remove(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, const std::string &name) {
   // TODO: remove no longer supported in DQMStore.
 }
-

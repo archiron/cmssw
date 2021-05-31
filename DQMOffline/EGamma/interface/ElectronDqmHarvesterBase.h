@@ -42,7 +42,6 @@ protected:
 
 private:
   bool finalDone_;
-
 };
 
 #endif

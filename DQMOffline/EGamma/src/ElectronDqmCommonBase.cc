@@ -36,14 +36,14 @@ void ElectronDqmCommonBase::setBookStatOverflowFlag(const bool &statOverflow_fla
 
 // Common features for ElectronDqmAnalyzerBase/ElectronDqmHarvesterBase
 ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH1(DQMStore::IBooker &iBooker,
-                                                                         const std::string &name,
-                                                                         const std::string &title,
-                                                                         int nchX,
-                                                                         double lowX,
-                                                                         double highX,
-                                                                         const std::string &titleX,
-                                                                         const std::string &titleY,
-                                                                         Option_t *option) {
+                                                                     const std::string &name,
+                                                                     const std::string &title,
+                                                                     int nchX,
+                                                                     double lowX,
+                                                                     double highX,
+                                                                     const std::string &titleX,
+                                                                     const std::string &titleY,
+                                                                     Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book1D(newName(name), title, nchX, lowX, highX);
   if (!titleX.empty()) {
@@ -63,14 +63,14 @@ ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH1(DQMStore::I
 }
 
 ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH1withSumw2(DQMStore::IBooker &iBooker,
-                                                                                  const std::string &name,
-                                                                                  const std::string &title,
-                                                                                  int nchX,
-                                                                                  double lowX,
-                                                                                  double highX,
-                                                                                  const std::string &titleX,
-                                                                                  const std::string &titleY,
-                                                                                  Option_t *option) {
+                                                                              const std::string &name,
+                                                                              const std::string &title,
+                                                                              int nchX,
+                                                                              double lowX,
+                                                                              double highX,
+                                                                              const std::string &titleX,
+                                                                              const std::string &titleY,
+                                                                              Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book1D(newName(name), title, nchX, lowX, highX);
   if (me->getTH1F()->GetSumw2N() == 0)
@@ -92,17 +92,17 @@ ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH1withSumw2(DQ
 }
 
 ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH2(DQMStore::IBooker &iBooker,
-                                                                           const std::string &name,
-                                                                           const std::string &title,
-                                                                           int nchX,
-                                                                           double lowX,
-                                                                           double highX,
-                                                                           int nchY,
-                                                                           double lowY,
-                                                                           double highY,
-                                                                           const std::string &titleX,
-                                                                           const std::string &titleY,
-                                                                           Option_t *option) {
+                                                                     const std::string &name,
+                                                                     const std::string &title,
+                                                                     int nchX,
+                                                                     double lowX,
+                                                                     double highX,
+                                                                     int nchY,
+                                                                     double lowY,
+                                                                     double highY,
+                                                                     const std::string &titleX,
+                                                                     const std::string &titleY,
+                                                                     Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book2D(newName(name), title, nchX, lowX, highX, nchY, lowY, highY);
   if (!titleX.empty()) {
@@ -122,17 +122,17 @@ ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH2(DQMStore::I
 }
 
 ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH2withSumw2(DQMStore::IBooker &iBooker,
-                                                                                    const std::string &name,
-                                                                                    const std::string &title,
-                                                                                    int nchX,
-                                                                                    double lowX,
-                                                                                    double highX,
-                                                                                    int nchY,
-                                                                                    double lowY,
-                                                                                    double highY,
-                                                                                    const std::string &titleX,
-                                                                                    const std::string &titleY,
-                                                                                    Option_t *option) {
+                                                                              const std::string &name,
+                                                                              const std::string &title,
+                                                                              int nchX,
+                                                                              double lowX,
+                                                                              double highX,
+                                                                              int nchY,
+                                                                              double lowY,
+                                                                              double highY,
+                                                                              const std::string &titleX,
+                                                                              const std::string &titleY,
+                                                                              Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book2D(newName(name), title, nchX, lowX, highX, nchY, lowY, highY);
   me->enableSumw2();
@@ -153,16 +153,16 @@ ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH2withSumw2(DQ
 }
 
 ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookP1(DQMStore::IBooker &iBooker,
-                                                                           const std::string &name,
-                                                                           const std::string &title,
-                                                                           int nchX,
-                                                                           double lowX,
-                                                                           double highX,
-                                                                           double lowY,
-                                                                           double highY,
-                                                                           const std::string &titleX,
-                                                                           const std::string &titleY,
-                                                                           Option_t *option) {
+                                                                     const std::string &name,
+                                                                     const std::string &title,
+                                                                     int nchX,
+                                                                     double lowX,
+                                                                     double highX,
+                                                                     double lowY,
+                                                                     double highY,
+                                                                     const std::string &titleX,
+                                                                     const std::string &titleY,
+                                                                     Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.bookProfile(newName(name), title, nchX, lowX, highX, lowY, highY, " ");
   if (!titleX.empty()) {
@@ -235,8 +235,7 @@ const std::string *ElectronDqmCommonBase::find(DQMStore::IGetter &iGetter, const
   return res[0];
 }
 
-ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::get(DQMStore::IGetter &iGetter,
-                                                                        const std::string &name) {
+ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::get(DQMStore::IGetter &iGetter, const std::string &name) {
   const std::string *fullName = find(iGetter, name);
   if (fullName) {
     return iGetter.get(inputInternalPath_ + "/" + *fullName);
@@ -246,24 +245,24 @@ ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::get(DQMStore::IGet
 }
 
 ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH1andDivide(DQMStore::IBooker &iBooker,
-                                                                                    DQMStore::IGetter &iGetter,
-                                                                                    const std::string &name,
-                                                                                    const std::string &num,
-                                                                                    const std::string &denom,
-                                                                                    const std::string &titleX,
-                                                                                    const std::string &titleY,
-                                                                                    const std::string &title) {
+                                                                              DQMStore::IGetter &iGetter,
+                                                                              const std::string &name,
+                                                                              const std::string &num,
+                                                                              const std::string &denom,
+                                                                              const std::string &titleX,
+                                                                              const std::string &titleY,
+                                                                              const std::string &title) {
   return bookH1andDivide(iBooker, iGetter, name, get(iGetter, num), get(iGetter, denom), titleX, titleY, title);
 }
 
 ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH1andDivide(DQMStore::IBooker &iBooker,
-                                                                                    DQMStore::IGetter &iGetter,
-                                                                                    const std::string &name,
-                                                                                    MonitorElement *num,
-                                                                                    MonitorElement *denom,
-                                                                                    const std::string &titleX,
-                                                                                    const std::string &titleY,
-                                                                                    const std::string &title) {
+                                                                              DQMStore::IGetter &iGetter,
+                                                                              const std::string &name,
+                                                                              MonitorElement *num,
+                                                                              MonitorElement *denom,
+                                                                              const std::string &titleX,
+                                                                              const std::string &titleY,
+                                                                              const std::string &title) {
   if ((!num) || (!denom))
     return nullptr;
   iBooker.setCurrentFolder(outputInternalPath_);
@@ -282,7 +281,7 @@ ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH1andDivide(DQ
   }
   MonitorElement *me = iBooker.book1D(name2, h_temp);
   if (bookEfficiencyFlag_) {
-  //if (bookEfficiencyFlag()) {
+    //if (bookEfficiencyFlag()) {
     me->setEfficiencyFlag();
   }
   delete h_temp;
@@ -290,24 +289,24 @@ ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH1andDivide(DQ
 }
 
 ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH2andDivide(DQMStore::IBooker &iBooker,
-                                                                                    DQMStore::IGetter &iGetter,
-                                                                                    const std::string &name,
-                                                                                    const std::string &num,
-                                                                                    const std::string &denom,
-                                                                                    const std::string &titleX,
-                                                                                    const std::string &titleY,
-                                                                                    const std::string &title) {
+                                                                              DQMStore::IGetter &iGetter,
+                                                                              const std::string &name,
+                                                                              const std::string &num,
+                                                                              const std::string &denom,
+                                                                              const std::string &titleX,
+                                                                              const std::string &titleY,
+                                                                              const std::string &title) {
   return bookH2andDivide(iBooker, iGetter, name, get(iGetter, num), get(iGetter, denom), titleX, titleY, title);
 }
 
 ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH2andDivide(DQMStore::IBooker &iBooker,
-                                                                                    DQMStore::IGetter &iGetter,
-                                                                                    const std::string &name,
-                                                                                    MonitorElement *num,
-                                                                                    MonitorElement *denom,
-                                                                                    const std::string &titleX,
-                                                                                    const std::string &titleY,
-                                                                                    const std::string &title) {
+                                                                              DQMStore::IGetter &iGetter,
+                                                                              const std::string &name,
+                                                                              MonitorElement *num,
+                                                                              MonitorElement *denom,
+                                                                              const std::string &titleX,
+                                                                              const std::string &titleY,
+                                                                              const std::string &title) {
   if ((!num) || (!denom))
     return nullptr;
   iBooker.setCurrentFolder(outputInternalPath_);
@@ -326,7 +325,7 @@ ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH2andDivide(DQ
   }
   MonitorElement *me = iBooker.book2D(name2, h_temp);
   if (bookEfficiencyFlag_) {
-  //if (bookEfficiencyFlag()) {
+    //if (bookEfficiencyFlag()) {
     me->setEfficiencyFlag();
   }
   delete h_temp;
@@ -334,18 +333,18 @@ ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::bookH2andDivide(DQ
 }
 
 ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::cloneH1(DQMStore::IBooker &iBooker,
-                                                                            DQMStore::IGetter &iGetter,
-                                                                            const std::string &clone,
-                                                                            const std::string &original,
-                                                                            const std::string &title) {
+                                                                      DQMStore::IGetter &iGetter,
+                                                                      const std::string &clone,
+                                                                      const std::string &original,
+                                                                      const std::string &title) {
   return cloneH1(iBooker, iGetter, clone, get(iGetter, original), title);
 }
 
 ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::cloneH1(DQMStore::IBooker &iBooker,
-                                                                            DQMStore::IGetter &iGetter,
-                                                                            const std::string &name,
-                                                                            MonitorElement *original,
-                                                                            const std::string &title) {
+                                                                      DQMStore::IGetter &iGetter,
+                                                                      const std::string &name,
+                                                                      MonitorElement *original,
+                                                                      const std::string &title) {
   if (!original)
     return nullptr;
   iBooker.setCurrentFolder(outputInternalPath_);
@@ -361,24 +360,24 @@ ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::cloneH1(DQMStore::
 }
 
 ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::profileX(DQMStore::IBooker &iBooker,
-                                                                             DQMStore::IGetter &iGetter,
-                                                                             const std::string &me2d,
-                                                                             const std::string &title,
-                                                                             const std::string &titleX,
-                                                                             const std::string &titleY,
-                                                                             Double_t minimum,
-                                                                             Double_t maximum) {
+                                                                       DQMStore::IGetter &iGetter,
+                                                                       const std::string &me2d,
+                                                                       const std::string &title,
+                                                                       const std::string &titleX,
+                                                                       const std::string &titleY,
+                                                                       Double_t minimum,
+                                                                       Double_t maximum) {
   return profileX(iBooker, iGetter, get(iGetter, me2d), title, titleX, titleY, minimum, maximum);
 }
 
 ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::profileX(DQMStore::IBooker &iBooker,
-                                                                             DQMStore::IGetter &iGetter,
-                                                                             MonitorElement *me2d,
-                                                                             const std::string &title,
-                                                                             const std::string &titleX,
-                                                                             const std::string &titleY,
-                                                                             Double_t minimum,
-                                                                             Double_t maximum) {
+                                                                       DQMStore::IGetter &iGetter,
+                                                                       MonitorElement *me2d,
+                                                                       const std::string &title,
+                                                                       const std::string &titleX,
+                                                                       const std::string &titleY,
+                                                                       Double_t minimum,
+                                                                       Double_t maximum) {
   iBooker.setCurrentFolder(outputInternalPath_);
   std::string name2 = me2d->getName() + "_pfx";
   TProfile *p1_temp = me2d->getTH2F()->ProfileX();
@@ -403,24 +402,24 @@ ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::profileX(DQMStore:
 }
 
 ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::profileY(DQMStore::IBooker &iBooker,
-                                                                             DQMStore::IGetter &iGetter,
-                                                                             const std::string &me2d,
-                                                                             const std::string &title,
-                                                                             const std::string &titleX,
-                                                                             const std::string &titleY,
-                                                                             Double_t minimum,
-                                                                             Double_t maximum) {
+                                                                       DQMStore::IGetter &iGetter,
+                                                                       const std::string &me2d,
+                                                                       const std::string &title,
+                                                                       const std::string &titleX,
+                                                                       const std::string &titleY,
+                                                                       Double_t minimum,
+                                                                       Double_t maximum) {
   return profileY(iBooker, iGetter, get(iGetter, me2d), title, titleX, titleY, minimum, maximum);
 }
 
 ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::profileY(DQMStore::IBooker &iBooker,
-                                                                             DQMStore::IGetter &iGetter,
-                                                                             MonitorElement *me2d,
-                                                                             const std::string &title,
-                                                                             const std::string &titleX,
-                                                                             const std::string &titleY,
-                                                                             Double_t minimum,
-                                                                             Double_t maximum) {
+                                                                       DQMStore::IGetter &iGetter,
+                                                                       MonitorElement *me2d,
+                                                                       const std::string &title,
+                                                                       const std::string &titleX,
+                                                                       const std::string &titleY,
+                                                                       Double_t minimum,
+                                                                       Double_t maximum) {
   iBooker.setCurrentFolder(outputInternalPath_);
   std::string name2 = me2d->getName() + "_pfy";
   TProfile *p1_temp = me2d->getTH2F()->ProfileY();
@@ -443,5 +442,3 @@ ElectronDqmCommonBase::MonitorElement *ElectronDqmCommonBase::profileY(DQMStore:
   delete p1_temp;
   return me;
 }
-
-
