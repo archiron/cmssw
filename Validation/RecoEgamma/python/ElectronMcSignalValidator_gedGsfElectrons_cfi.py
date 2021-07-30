@@ -34,16 +34,14 @@ electronMcSignalValidator = DQMEDAnalyzer('ElectronMcSignalValidator',
   OutputFile = cms.string(""),
   InputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
   OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
-#  OutputMEsInRootFile = cms.bool(True),
     
   mcTruthCollection = cms.InputTag("genParticles"),
   electronCollection = cms.InputTag("gedGsfElectrons"),
+  electronCollectionEndcaps = cms.InputTag("gedGsfElectrons"),
   electronCoreCollection = cms.InputTag("gedGsfElectronCores"),
   electronTrackCollection = cms.InputTag("electronGsfTracks"),
   electronSeedCollection = cms.InputTag("electronMergedSeeds"),
-  # ajout 03/02/2015
   offlinePrimaryVertices = cms.InputTag("offlinePrimaryVertices"),
-  # fin ajout
   beamSpot = cms.InputTag("offlineBeamSpot"),
   readAOD = cms.bool(False),
 
@@ -76,12 +74,8 @@ electronMcSignalValidator = DQMEDAnalyzer('ElectronMcSignalValidator',
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify(
     electronMcSignalValidator,
-#  electronCollection = cms.InputTag("ecalDrivenGsfElectrons"),
-#  electronCoreCollection = cms.InputTag("ecalDrivenGsfElectronCores"),
-    electronCollection = 'ecalDrivenGsfElectronsHGC',
+    electronCollectionEndcaps = 'ecalDrivenGsfElectronsHGC',
     electronCoreCollection = 'ecalDrivenGsfElectronCoresHGC',
-    electronTrackCollection = 'electronGsfTracks',
-    electronSeedCollection = 'electronMergedSeeds',
     MaxAbsEta = cms.double(3.0),
     histosCfg = dict( 
         Nbineta = 60 ,
