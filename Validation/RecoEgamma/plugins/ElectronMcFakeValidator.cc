@@ -44,6 +44,8 @@ using namespace reco;
 
 ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) : ElectronDqmAnalyzerBase(conf) {
   electronCollection_ = consumes<reco::GsfElectronCollection>(conf.getParameter<edm::InputTag>("electronCollection"));
+  electronCollectionEndcaps_ =
+      consumes<reco::GsfElectronCollection>(conf.getParameter<edm::InputTag>("electronCollectionEndcaps"));
   electronCoreCollection_ =
       consumes<reco::GsfElectronCoreCollection>(conf.getParameter<edm::InputTag>("electronCoreCollection"));
   electronTrackCollection_ =
@@ -257,9 +259,9 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   h1_scl_SigIEtaIEta_ = nullptr;
   h1_scl_SigIEtaIEta_barrel_ = nullptr;
   h1_scl_SigIEtaIEta_endcaps_ = nullptr;
-  h1_scl_full5x5_sigmaIetaIeta_ = nullptr;          // new 2014.01.12
-  h1_scl_full5x5_sigmaIetaIeta_barrel_ = nullptr;   // new 2014.01.12
-  h1_scl_full5x5_sigmaIetaIeta_endcaps_ = nullptr;  // new 2014.01.12
+  h1_scl_full5x5_sigmaIetaIeta_ = nullptr;
+  h1_scl_full5x5_sigmaIetaIeta_barrel_ = nullptr;
+  h1_scl_full5x5_sigmaIetaIeta_endcaps_ = nullptr;
   h1_scl_E1x5_ = nullptr;
   h1_scl_E1x5_barrel_ = nullptr;
   h1_scl_E1x5_endcaps_ = nullptr;
@@ -403,7 +405,6 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   h2_ele_HoEVsEta = nullptr;
   h2_ele_HoEVsPhi = nullptr;
   h2_ele_HoEVsE = nullptr;
-  //  h1_scl_ESFrac = 0 ;
   h1_scl_ESFrac_endcaps = nullptr;
 
   h1_ele_fbrem = nullptr;
@@ -470,7 +471,6 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
 
   // matching object type
   std::string matchingObjectType;
-  // Emilia
   matchingObjectType = "GenJet";
 
   std::string htitle = "# " + matchingObjectType + "s", xtitle = "N_{" + matchingObjectType + "}";
@@ -887,7 +887,6 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
                                                 "#sigma_{i#eta i#eta}",
                                                 "Events",
                                                 "ELE_LOGY E1 P");
-  // new 2014.01.12
   h1_scl_full5x5_sigmaIetaIeta_ = bookH1withSumw2(iBooker,
                                                   "full5x5_sigietaieta",
                                                   "ele supercluster full5x5 sigma ieta ieta",
@@ -915,7 +914,6 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
                                                           "#sigma_{i#eta i#eta}",
                                                           "Events",
                                                           "ELE_LOGY E1 P");
-  // new 2014.01.12
   h1_scl_E1x5_ = bookH1withSumw2(
       iBooker, "E1x5", "ele supercluster energy in 1x5", p_nbin, 0., p_max, "E1x5 (GeV)", "Events", "ELE_LOGY E1 P");
   h1_scl_E1x5_barrel_ = bookH1withSumw2(iBooker,
@@ -1720,7 +1718,6 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
   h2_ele_HoEVsE =
       bookH2(iBooker, "HoEVsE", "ele hadronic energy / em energy vs E", p_nbin, 0., 300., hoe_nbin, hoe_min, hoe_max);
   setBookPrefix("h_scl");
-  //  h1_scl_ESFrac = bookH1withSumw2(iBooker, "ESFrac","Preshower over SC raw energy",100,0.,0.8,"E_{PS} / E^{raw}_{SC}","Events","ELE_LOGY E1 P");
   h1_scl_ESFrac_endcaps = bookH1withSumw2(iBooker,
                                           "ESFrac_endcaps",
                                           "Preshower over SC raw energy , endcaps",
@@ -2411,9 +2408,17 @@ ElectronMcFakeValidator::~ElectronMcFakeValidator() {}
 void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // get reco electrons
   auto gsfElectrons = iEvent.getHandle(electronCollection_);
+  auto gsfElectronsEndcaps = iEvent.getHandle(electronCollectionEndcaps_);
   auto gsfElectronCores = iEvent.getHandle(electronCoreCollection_);
   auto gsfElectronTracks = iEvent.getHandle(electronTrackCollection_);
   auto gsfElectronSeeds = iEvent.getHandle(electronSeedCollection_);
+
+  // get gen jets
+  auto genJets = iEvent.getHandle(matchingObjectCollection_);
+
+  // get the beamspot from the Event:
+  auto recoBeamSpotHandle = iEvent.getHandle(beamSpotTag_);
+  const BeamSpot bs = *recoBeamSpotHandle;
 
   auto isoFromDepsTk03Handle = iEvent.getHandle(isoFromDepsTk03Tag_);
   auto isoFromDepsTk04Handle = iEvent.getHandle(isoFromDepsTk04Tag_);
@@ -2424,8 +2429,6 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
   auto isoFromDepsHcal03Handle = iEvent.getHandle(isoFromDepsHcal03Tag_);
   auto isoFromDepsHcal04Handle = iEvent.getHandle(isoFromDepsHcal04Tag_);
 
-  /*edm::Handle<reco::VertexCollection> vertexCollectionHandle;
-  iEvent.getByToken(offlineVerticesCollection_, vertexCollectionHandle);*/
   auto vertexCollectionHandle = iEvent.getHandle(offlineVerticesCollection_);
   if (!vertexCollectionHandle.isValid()) {
     edm::LogInfo("ElectronMcFakeValidator::analyze") << "vertexCollectionHandle KO";
@@ -2433,71 +2436,93 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
     edm::LogInfo("ElectronMcFakeValidator::analyze") << "vertexCollectionHandle OK";
   }
 
-  // get gen jets
-  auto genJets = iEvent.getHandle(matchingObjectCollection_);
-
-  // get the beamspot from the Event:
-  auto recoBeamSpotHandle = iEvent.getHandle(beamSpotTag_);
-  const BeamSpot bs = *recoBeamSpotHandle;
-
   edm::LogInfo("ElectronMcFakeValidator::analyze")
       << "Treating event " << iEvent.id() << " with " << gsfElectrons.product()->size() << " electrons";
+  edm::LogInfo("ElectronMcSignalValidator::analyze")
+      << "Treating event " << iEvent.id() << " with " << gsfElectronsEndcaps.product()->size() << " electrons";
+
   h1_recEleNum_->Fill((*gsfElectrons).size());
   h1_recCoreNum_->Fill((*gsfElectronCores).size());
   h1_recTrackNum_->Fill((*gsfElectronTracks).size());
   h1_recSeedNum_->Fill((*gsfElectronSeeds).size());
   h1_recOfflineVertices_->Fill((*vertexCollectionHandle).size());
 
-  // all rec electrons
   reco::GsfElectronCollection::const_iterator gsfIter;
-  for (gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
-    // preselect electrons
-    if (gsfIter->pt() > maxPt_ || std::abs(gsfIter->eta()) > maxAbsEta_) {
-      continue;
-    }
+  std::vector <reco::GsfElectron>::const_iterator gsfIter3;
+  std::vector <reco::GsfElectron>::const_iterator gsfIter4;
 
-    h1_ele_EoverP_all->Fill(gsfIter->eSuperClusterOverP());
-    h1_ele_EseedOP_all->Fill(gsfIter->eSeedClusterOverP());
-    h1_ele_EoPout_all->Fill(gsfIter->eSeedClusterOverPout());
-    h1_ele_EeleOPout_all->Fill(gsfIter->eEleClusterOverPout());
-    h1_ele_dEtaSc_propVtx_all->Fill(gsfIter->deltaEtaSuperClusterTrackAtVtx());
-    h1_ele_dPhiSc_propVtx_all->Fill(gsfIter->deltaPhiSuperClusterTrackAtVtx());
-    h1_ele_dEtaCl_propOut_all->Fill(gsfIter->deltaEtaSeedClusterTrackAtCalo());
-    h1_ele_dPhiCl_propOut_all->Fill(gsfIter->deltaPhiSeedClusterTrackAtCalo());
-    h1_ele_HoE_all->Fill(gsfIter->hadronicOverEm());
-    h1_ele_HoE_bc_all->Fill(gsfIter->hcalOverEcalBc());
-    double d = gsfIter->vertex().x() * gsfIter->vertex().x() + gsfIter->vertex().y() * gsfIter->vertex().y();
+  //===============================================
+  // get a vector with EB  & EE
+  //===============================================
+  std::vector <reco::GsfElectron> localCollection;
+  int iBarrels = 0;
+  int iEndcaps = 0;
+
+  // looking for EB
+  for (gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
+    if (gsfIter->isEB()) 
+    {
+      localCollection.push_back( *gsfIter );
+      iBarrels += 1;
+    }
+  }
+
+  // looking for EE
+  for (gsfIter = gsfElectronsEndcaps->begin(); gsfIter != gsfElectronsEndcaps->end(); gsfIter++) {
+    if (gsfIter->isEE()) 
+    {
+      localCollection.push_back(*gsfIter);
+      iEndcaps += 1;
+    }
+  }
+
+  // all rec electrons
+  for (gsfIter3 = localCollection.begin(); gsfIter3 != localCollection.end(); gsfIter3++) {
+    // preselect electrons
+    if (gsfIter3->pt() > maxPt_ || std::abs(gsfIter3->eta()) > maxAbsEta_)
+      continue;
+
+    h1_ele_EoverP_all->Fill(gsfIter3->eSuperClusterOverP());
+    h1_ele_EseedOP_all->Fill(gsfIter3->eSeedClusterOverP());
+    h1_ele_EoPout_all->Fill(gsfIter3->eSeedClusterOverPout());
+    h1_ele_EeleOPout_all->Fill(gsfIter3->eEleClusterOverPout());
+    h1_ele_dEtaSc_propVtx_all->Fill(gsfIter3->deltaEtaSuperClusterTrackAtVtx());
+    h1_ele_dPhiSc_propVtx_all->Fill(gsfIter3->deltaPhiSuperClusterTrackAtVtx());
+    h1_ele_dEtaCl_propOut_all->Fill(gsfIter3->deltaEtaSeedClusterTrackAtCalo());
+    h1_ele_dPhiCl_propOut_all->Fill(gsfIter3->deltaPhiSeedClusterTrackAtCalo());
+    h1_ele_HoE_all->Fill(gsfIter3->hcalOverEcal());
+    h1_ele_HoE_bc_all->Fill(gsfIter3->hcalOverEcalBc());
+    double d = gsfIter3->vertex().x() * gsfIter3->vertex().x() + gsfIter3->vertex().y() * gsfIter3->vertex().y();
     h1_ele_TIP_all->Fill(sqrt(d));
-    h1_ele_vertexEta_all->Fill(gsfIter->eta());
-    h1_ele_vertexPt_all->Fill(gsfIter->pt());
-    float enrj1 = gsfIter->ecalEnergy();
+    h1_ele_vertexEta_all->Fill(gsfIter3->eta());
+    h1_ele_vertexPt_all->Fill(gsfIter3->pt());
+    float enrj1 = gsfIter3->ecalEnergy();
 
     // mee
-    reco::GsfElectronCollection::const_iterator gsfIter2;
-    for (gsfIter2 = gsfIter + 1; gsfIter2 != gsfElectrons->end(); gsfIter2++) {
-      math::XYZTLorentzVector p12 = (*gsfIter).p4() + (*gsfIter2).p4();
+    for (gsfIter4 = gsfIter3 + 1; gsfIter4 != localCollection.end(); gsfIter4++) {
+      math::XYZTLorentzVector p12 = (*gsfIter3).p4() + (*gsfIter4).p4();
       float mee2 = p12.Dot(p12);
       h1_ele_mee_all->Fill(sqrt(mee2));
-      float enrj2 = gsfIter2->ecalEnergy();
+      float enrj2 = gsfIter4->ecalEnergy();
       h2_ele_E2mnE1vsMee_all->Fill(sqrt(mee2), enrj2 - enrj1);
-      if (gsfIter->ecalDrivenSeed() && gsfIter2->ecalDrivenSeed()) {
+      if (gsfIter3->ecalDrivenSeed() && gsfIter4->ecalDrivenSeed()) {
         h2_ele_E2mnE1vsMee_egeg_all->Fill(sqrt(mee2), enrj2 - enrj1);
       }
-      if (gsfIter->charge() * gsfIter2->charge() < 0.) {
+      if (gsfIter3->charge() * gsfIter4->charge() < 0.) {
         h1_ele_mee_os->Fill(sqrt(mee2));
       }
     }
 
     // conversion rejection
-    int flags = gsfIter->convFlags();
+    int flags = gsfIter3->convFlags();
     if (flags == -9999) {
       flags = -1;
     }
     h1_ele_convFlags_all->Fill(flags);
     if (flags >= 0.) {
-      h1_ele_convDist_all->Fill(gsfIter->convDist());
-      h1_ele_convDcot_all->Fill(gsfIter->convDcot());
-      h1_ele_convRadius_all->Fill(gsfIter->convRadius());
+      h1_ele_convDist_all->Fill(gsfIter3->convDist());
+      h1_ele_convDcot_all->Fill(gsfIter3->convDcot());
+      h1_ele_convRadius_all->Fill(gsfIter3->convRadius());
     }
   }
 
@@ -2512,11 +2537,6 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
       continue;
     }
 
-    // suppress the endcaps
-    //if (std::abs(moIter->eta()) > 1.5) continue;
-    // select central z
-    //if ( std::abs((*mcIter)->production_vertex()->position().z())>50.) continue;
-
     h1_matchingObjectEta->Fill(moIter->eta());
     h1_matchingObjectAbsEta->Fill(std::abs(moIter->eta()));
     h1_matchingObjectP->Fill(moIter->energy());
@@ -2530,26 +2550,19 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
 
     // find best matched electron
     reco::GsfElectron bestGsfElectron;
-    reco::GsfElectronRef bestGsfElectronRef;
-    reco::GsfElectronCollection::const_iterator gsfIter;
-    reco::GsfElectronCollection::size_type iElectron;
-    for (gsfIter = gsfElectrons->begin(), iElectron = 0; gsfIter != gsfElectrons->end(); gsfIter++, iElectron++) {
-      double dphi = gsfIter->phi() - moIter->phi();
+    for (gsfIter3 = localCollection.begin(); gsfIter3 != localCollection.end(); gsfIter3++) {
+      double dphi = gsfIter3->phi() - moIter->phi();
       if (std::abs(dphi) > CLHEP::pi) {
         dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
       }
-      double deltaR = sqrt(pow((gsfIter->eta() - moIter->eta()), 2) + pow(dphi, 2));
+      double deltaR = sqrt(pow((gsfIter3->eta() - moIter->eta()), 2) + pow(dphi, 2));
       if (deltaR < deltaR_) {
-        //if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
-        //(gsfIter->charge() > 0.) ){
-        double tmpGsfRatio = gsfIter->p() / moIter->energy();
+        double tmpGsfRatio = gsfIter3->p() / moIter->energy();
         if (std::abs(tmpGsfRatio - 1) < std::abs(gsfOkRatio - 1)) {
           gsfOkRatio = tmpGsfRatio;
-          bestGsfElectronRef = reco::GsfElectronRef(gsfElectrons, iElectron);
-          bestGsfElectron = *gsfIter;
+          bestGsfElectron = *gsfIter3;
           okGsfFound = true;
         }
-        //}
       }
     }  // loop over rec ele to look for the best one
 

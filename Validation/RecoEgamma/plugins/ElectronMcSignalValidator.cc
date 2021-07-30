@@ -53,6 +53,8 @@ using namespace reco;
 ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &conf) : ElectronDqmAnalyzerBase(conf) {
   mcTruthCollection_ = consumes<reco::GenParticleCollection>(conf.getParameter<edm::InputTag>("mcTruthCollection"));
   electronCollection_ = consumes<reco::GsfElectronCollection>(conf.getParameter<edm::InputTag>("electronCollection"));
+  electronCollectionEndcaps_ =
+      consumes<reco::GsfElectronCollection>(conf.getParameter<edm::InputTag>("electronCollectionEndcaps"));
   electronCoreCollection_ =
       consumes<reco::GsfElectronCoreCollection>(conf.getParameter<edm::InputTag>("electronCoreCollection"));
   electronTrackCollection_ =
@@ -220,11 +222,7 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   h1_ele_EseedOP_all_barrel = nullptr;
   h1_ele_EseedOP_all_endcaps = nullptr;
   h1_ele_EoPout_all = nullptr;
-  h1_ele_EoPout_all_barrel = nullptr;
-  h1_ele_EoPout_all_endcaps = nullptr;
   h1_ele_EeleOPout_all = nullptr;
-  h1_ele_EeleOPout_all_barrel = nullptr;
-  h1_ele_EeleOPout_all_endcaps = nullptr;
   h1_ele_dEtaSc_propVtx_all = nullptr;
   h1_ele_dEtaSc_propVtx_all_barrel = nullptr;
   h1_ele_dEtaSc_propVtx_all_endcaps = nullptr;
@@ -295,9 +293,9 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   h1_scl_EoEtrue_barrel_new_phigap = nullptr;
   h1_scl_EoEtrue_ebeegap_new = nullptr;
   h1_scl_EoEtrue_endcaps_new_deegap = nullptr;
-  h2_scl_EoEtrueVsrecOfflineVertices = nullptr;          // new 2015.15.05
-  h2_scl_EoEtrueVsrecOfflineVertices_barrel = nullptr;   // new 2015.15.05
-  h2_scl_EoEtrueVsrecOfflineVertices_endcaps = nullptr;  // new 2015.15.05
+  h2_scl_EoEtrueVsrecOfflineVertices = nullptr;
+  h2_scl_EoEtrueVsrecOfflineVertices_barrel = nullptr;
+  h2_scl_EoEtrueVsrecOfflineVertices_endcaps = nullptr;
   h1_scl_EoEtrue_endcaps_new_ringgap = nullptr;
   h1_scl_Et = nullptr;
   h2_scl_EtVsEta = nullptr;
@@ -305,7 +303,6 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   h2_scl_EtaVsPhi = nullptr;
   h1_scl_Eta = nullptr;
   h1_scl_Phi = nullptr;
-  //  h1_scl_ESFrac = 0 ;
   h1_scl_ESFrac_endcaps = nullptr;
 
   h2_scl_EoEtruePfVsEg = nullptr;
@@ -713,24 +710,6 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                       "E_{seed}/P_{out}",
                                       "Events",
                                       "ELE_LOGY E1 P");
-  h1_ele_EoPout_all_barrel = bookH1withSumw2(iBooker,
-                                             "EoPout_all_barrel",
-                                             "ele E_{seed}/P_{out}, all reco electrons barrel",
-                                             eop_nbin,
-                                             0.,
-                                             eop_max,
-                                             "E_{seed}/P_{out}",
-                                             "Events",
-                                             "ELE_LOGY E1 P");
-  h1_ele_EoPout_all_endcaps = bookH1withSumw2(iBooker,
-                                              "EoPout_all_endcaps",
-                                              "ele E_{seed}/P_{out}, all reco electrons endcaps",
-                                              eop_nbin,
-                                              0.,
-                                              eop_max,
-                                              "E_{seed}/P_{out}",
-                                              "Events",
-                                              "ELE_LOGY E1 P");
   h1_ele_EeleOPout_all = bookH1withSumw2(iBooker,
                                          "EeleOPout_all",
                                          "ele E_{ele}/P_{out}, all reco electrons",
@@ -740,24 +719,6 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                          "E_{ele}/P_{out}",
                                          "Events",
                                          "ELE_LOGY E1 P");
-  h1_ele_EeleOPout_all_barrel = bookH1withSumw2(iBooker,
-                                                "EeleOPout_all_barrel",
-                                                "ele E_{ele}/P_{out}, all reco electrons barrel",
-                                                eop_nbin,
-                                                0.,
-                                                eop_max,
-                                                "E_{ele}/P_{out}",
-                                                "Events",
-                                                "ELE_LOGY E1 P");
-  h1_ele_EeleOPout_all_endcaps = bookH1withSumw2(iBooker,
-                                                 "EeleOPout_all_endcaps",
-                                                 "ele E_{ele}/P_{out}, all reco electrons endcaps",
-                                                 eop_nbin,
-                                                 0.,
-                                                 eop_max,
-                                                 "E_{ele}/P_{out}",
-                                                 "Events",
-                                                 "ELE_LOGY E1 P");
   h1_ele_dEtaSc_propVtx_all = bookH1withSumw2(iBooker,
                                               "dEtaSc_propVtx_all",
                                               "ele #eta_{sc} - #eta_{tr}, prop from vertex, all reco electrons",
@@ -1172,7 +1133,6 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                poptrue_max);
   h2_ele_PoPtrueVsPt = bookH2(
       iBooker, "PoPtrueVsPt", "ele momentum / gen momentum vs eta", pt2D_nbin, 0., pt_max, 50, poptrue_min, poptrue_max);
-  //  h2_ele_sigmaIetaIetaVsPt = bookH2(iBooker,"sigmaIetaIetaVsPt","SigmaIetaIeta vs pt",pt_nbin,0.,pt_max,100,0.,0.05);
   h2_ele_sigmaIetaIetaVsPt =
       bookH2(iBooker, "sigmaIetaIetaVsPt", "SigmaIetaIeta vs pt", 100, 0., pt_max, 100, 0., 0.05);
   h1_ele_PoPtrue_golden_barrel = bookH1withSumw2(iBooker,
@@ -1619,7 +1579,6 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
       iBooker, "bcl_EtotoEtrue_barrel", "Total basicclusters energy , barrel", 50, 0.2, 1.2, "E/E_{gen}");
   h1_scl_bcl_EtotoEtrue_endcaps = bookH1withSumw2(
       iBooker, "bcl_EtotoEtrue_endcaps", "Total basicclusters energy , endcaps", 50, 0.2, 1.2, "E/E_{gen}");
-  //  h1_scl_ESFrac = bookH1withSumw2(iBooker, "ESFrac","Preshower over SC raw energy",100,0.,0.8,"E_{PS} / E^{raw}_{SC}","Events","ELE_LOGY E1 P");
   h1_scl_ESFrac_endcaps = bookH1withSumw2(iBooker,
                                           "ESFrac_endcaps",
                                           "Preshower over SC raw energy , endcaps",
@@ -3276,6 +3235,7 @@ ElectronMcSignalValidator::~ElectronMcSignalValidator() {}
 void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::EventSetup &) {
   // get collections
   auto gsfElectrons = iEvent.getHandle(electronCollection_);
+  auto gsfElectronsEndcaps = iEvent.getHandle(electronCollectionEndcaps_);
   auto gsfElectronCores = iEvent.getHandle(electronCoreCollection_);
   auto gsfElectronTracks = iEvent.getHandle(electronTrackCollection_);
   auto gsfElectronSeeds = iEvent.getHandle(electronSeedCollection_);
@@ -3299,55 +3259,82 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
   edm::LogInfo("ElectronMcSignalValidator::analyze")
       << "Treating event " << iEvent.id() << " with " << gsfElectrons.product()->size() << " electrons";
+  edm::LogInfo("ElectronMcSignalValidator::analyze")
+      << "Treating event " << iEvent.id() << " with " << gsfElectronsEndcaps.product()->size() << " electrons";
+
   h1_recEleNum->Fill((*gsfElectrons).size());
   h1_recCoreNum->Fill((*gsfElectronCores).size());
   h1_recTrackNum->Fill((*gsfElectronTracks).size());
   h1_recSeedNum->Fill((*gsfElectronSeeds).size());
   h1_recOfflineVertices->Fill((*vertexCollectionHandle).size());
 
+  reco::GsfElectronCollection::const_iterator gsfIter;
+  std::vector <reco::GsfElectron>::const_iterator gsfIter3;
+  std::vector <reco::GsfElectron>::const_iterator gsfIter4;
+
+  //===============================================
+  // get a vector with EB  & EE
+  //===============================================
+  std::vector <reco::GsfElectron> localCollection;
+  int iBarrels = 0;
+  int iEndcaps = 0;
+
+  // looking for EB
+  for (gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
+    if (gsfIter->isEB()) 
+    {
+      localCollection.push_back( *gsfIter );
+      iBarrels += 1;
+    }
+  }
+
+  // looking for EE
+  for (gsfIter = gsfElectronsEndcaps->begin(); gsfIter != gsfElectronsEndcaps->end(); gsfIter++) {
+    if (gsfIter->isEE()) 
+    {
+      localCollection.push_back(*gsfIter);
+      iEndcaps += 1;
+    }
+  }
+ 
   //===============================================
   // all rec electrons
   //===============================================
 
-  reco::GsfElectronCollection::const_iterator gsfIter;
   // mee only
-  for (gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
-    // preselect electrons
-    //    if (gsfIter->pt()>maxPt_ || std::abs(gsfIter->eta())>maxAbsEta_) continue ;
+  for (gsfIter3 = localCollection.begin(); gsfIter3 != localCollection.end(); gsfIter3++) {
 
-    //
-    float enrj1 = gsfIter->ecalEnergy();
+    float enrj1 = gsfIter3->ecalEnergy();
 
-    reco::GsfElectronCollection::const_iterator gsfIter2;
-    for (gsfIter2 = gsfIter + 1; gsfIter2 != gsfElectrons->end(); gsfIter2++) {
-      math::XYZTLorentzVector p12 = (*gsfIter).p4() + (*gsfIter2).p4();
+    for (gsfIter4 = gsfIter3 + 1; gsfIter4 != localCollection.end(); gsfIter4++) {
+      math::XYZTLorentzVector p12 = (*gsfIter3).p4() + (*gsfIter4).p4();
       float mee2 = p12.Dot(p12);
-      float enrj2 = gsfIter2->ecalEnergy();
+      float enrj2 = gsfIter4->ecalEnergy();
       h1_ele_mee_all->Fill(sqrt(mee2));
       h2_ele_E2mnE1vsMee_all->Fill(sqrt(mee2), enrj2 - enrj1);
-      if (gsfIter->ecalDrivenSeed() && gsfIter2->ecalDrivenSeed()) {
+      if (gsfIter3->ecalDrivenSeed() && gsfIter4->ecalDrivenSeed()) {
         h2_ele_E2mnE1vsMee_egeg_all->Fill(sqrt(mee2), enrj2 - enrj1);
       }
-      if (gsfIter->charge() * gsfIter2->charge() < 0.) {
+      if (gsfIter3->charge() * gsfIter4->charge() < 0.) {
         h1_ele_mee_os->Fill(sqrt(mee2));
-        if (gsfIter->isEB() && gsfIter2->isEB()) {
+        if (gsfIter3->isEB() && gsfIter4->isEB()) {
           h1_ele_mee_os_ebeb->Fill(sqrt(mee2));
         }
-        if ((gsfIter->isEB() && gsfIter2->isEE()) || (gsfIter->isEE() && gsfIter2->isEB()))
+        if ((gsfIter3->isEB() && gsfIter4->isEE()) || (gsfIter3->isEE() && gsfIter4->isEB()))
           h1_ele_mee_os_ebee->Fill(sqrt(mee2));
-        if (gsfIter->isEE() && gsfIter2->isEE()) {
+        if (gsfIter3->isEE() && gsfIter4->isEE()) {
           h1_ele_mee_os_eeee->Fill(sqrt(mee2));
         }
-        if ((gsfIter->classification() == GsfElectron::GOLDEN && gsfIter2->classification() == GsfElectron::GOLDEN) ||
-            (gsfIter->classification() == GsfElectron::GOLDEN && gsfIter2->classification() == GsfElectron::BIGBREM) ||
-            (gsfIter->classification() == GsfElectron::BIGBREM && gsfIter2->classification() == GsfElectron::GOLDEN) ||
-            (gsfIter->classification() == GsfElectron::BIGBREM && gsfIter2->classification() == GsfElectron::BIGBREM)) {
+        if ((gsfIter3->classification() == GsfElectron::GOLDEN && gsfIter4->classification() == GsfElectron::GOLDEN) ||
+            (gsfIter3->classification() == GsfElectron::GOLDEN && gsfIter4->classification() == GsfElectron::BIGBREM) ||
+            (gsfIter3->classification() == GsfElectron::BIGBREM && gsfIter4->classification() == GsfElectron::GOLDEN) ||
+            (gsfIter3->classification() == GsfElectron::BIGBREM && gsfIter4->classification() == GsfElectron::BIGBREM)) {
           h1_ele_mee_os_gg->Fill(sqrt(mee2));
-        } else if ((gsfIter->classification() == GsfElectron::SHOWERING &&
-                    gsfIter2->classification() == GsfElectron::SHOWERING) ||
-                   (gsfIter->classification() == GsfElectron::SHOWERING && gsfIter2->isGap()) ||
-                   (gsfIter->isGap() && gsfIter2->classification() == GsfElectron::SHOWERING) ||
-                   (gsfIter->isGap() && gsfIter2->isGap())) {
+        } else if ((gsfIter3->classification() == GsfElectron::SHOWERING &&
+                    gsfIter4->classification() == GsfElectron::SHOWERING) ||
+                   (gsfIter3->classification() == GsfElectron::SHOWERING && gsfIter4->isGap()) ||
+                   (gsfIter3->isGap() && gsfIter4->classification() == GsfElectron::SHOWERING) ||
+                   (gsfIter3->isGap() && gsfIter4->isGap())) {
           h1_ele_mee_os_bb->Fill(sqrt(mee2));
         } else {
           h1_ele_mee_os_gb->Fill(sqrt(mee2));
@@ -3356,39 +3343,38 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     }
   }
 
-  for (gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
+  for (gsfIter3 = localCollection.begin(); gsfIter3 != localCollection.end(); gsfIter3++) {
     // preselect electrons
-    if (gsfIter->pt() > maxPt_ || std::abs(gsfIter->eta()) > maxAbsEta_)
+    if (gsfIter3->pt() > maxPt_ || std::abs(gsfIter3->eta()) > maxAbsEta_)
       continue;
 
-    //
-    h1_ele_EoverP_all->Fill(gsfIter->eSuperClusterOverP());
-    h1_ele_EseedOP_all->Fill(gsfIter->eSeedClusterOverP());
-    h1_ele_EoPout_all->Fill(gsfIter->eSeedClusterOverPout());
-    h1_ele_EeleOPout_all->Fill(gsfIter->eEleClusterOverPout());
-    h1_ele_dEtaSc_propVtx_all->Fill(gsfIter->deltaEtaSuperClusterTrackAtVtx());
-    h1_ele_dPhiSc_propVtx_all->Fill(gsfIter->deltaPhiSuperClusterTrackAtVtx());
-    h1_ele_dEtaCl_propOut_all->Fill(gsfIter->deltaEtaSeedClusterTrackAtCalo());
-    h1_ele_dPhiCl_propOut_all->Fill(gsfIter->deltaPhiSeedClusterTrackAtCalo());
-    h1_ele_HoE_all->Fill(gsfIter->hcalOverEcal());
-    h1_ele_HoE_bc_all->Fill(gsfIter->hcalOverEcalBc());
-    h1_ele_TIP_all->Fill(EleRelPoint(gsfIter->vertex(), theBeamSpot->position()).perp());
-    h1_ele_vertexEta_all->Fill(gsfIter->eta());
-    h1_ele_vertexPt_all->Fill(gsfIter->pt());
-    h1_ele_Et_all->Fill(gsfIter->ecalEnergy() / cosh(gsfIter->superCluster()->eta()));
+    h1_ele_EoverP_all->Fill(gsfIter3->eSuperClusterOverP());
+    h1_ele_EseedOP_all->Fill(gsfIter3->eSeedClusterOverP());
+    h1_ele_EoPout_all->Fill(gsfIter3->eSeedClusterOverPout());
+    h1_ele_EeleOPout_all->Fill(gsfIter3->eEleClusterOverPout());
+    h1_ele_dEtaSc_propVtx_all->Fill(gsfIter3->deltaEtaSuperClusterTrackAtVtx());
+    h1_ele_dPhiSc_propVtx_all->Fill(gsfIter3->deltaPhiSuperClusterTrackAtVtx());
+    h1_ele_dEtaCl_propOut_all->Fill(gsfIter3->deltaEtaSeedClusterTrackAtCalo());
+    h1_ele_dPhiCl_propOut_all->Fill(gsfIter3->deltaPhiSeedClusterTrackAtCalo());
+    h1_ele_HoE_all->Fill(gsfIter3->hcalOverEcal());
+    h1_ele_HoE_bc_all->Fill(gsfIter3->hcalOverEcalBc());
+    h1_ele_TIP_all->Fill(EleRelPoint(gsfIter3->vertex(), theBeamSpot->position()).perp());
+    h1_ele_vertexEta_all->Fill(gsfIter3->eta());
+    h1_ele_vertexPt_all->Fill(gsfIter3->pt());
+    h1_ele_Et_all->Fill(gsfIter3->ecalEnergy() / cosh(gsfIter3->superCluster()->eta()));
 
     // conversion rejection
-    int flags = gsfIter->convFlags();
+    int flags = gsfIter3->convFlags();
     if (flags == -9999) {
       flags = -1;
     }
     h1_ele_convFlags_all->Fill(flags);
     if (flags >= 0.) {
-      h1_ele_convDist_all->Fill(gsfIter->convDist());
-      h1_ele_convDcot_all->Fill(gsfIter->convDcot());
-      h1_ele_convRadius_all->Fill(gsfIter->convRadius());
+      h1_ele_convDist_all->Fill(gsfIter3->convDist());
+      h1_ele_convDcot_all->Fill(gsfIter3->convDcot());
+      h1_ele_convRadius_all->Fill(gsfIter3->convRadius());
     }
-  }
+  }/**/
 
   //===============================================
   // charge mis-ID
@@ -3399,21 +3385,12 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
   reco::GenParticleCollection::const_iterator mcIter;
   for (mcIter = genParticles->begin(); mcIter != genParticles->end(); mcIter++) {
-    /*                // DEBUG LINES - KEEP IT !
-    std::cout << "\nevt ID = " << iEvent.id() ; 
-    std::cout << ",  mcIter position : " << mcIter - genParticles->begin() << std::endl ; 
-    std::cout << "pdgID : " << mcIter->pdgId() << ", Pt : " << mcIter->pt() << ", eta : " << mcIter->eta() << ", phi : " << mcIter->phi() << std::endl; 
-                // DEBUG LINES - KEEP IT !  */
 
     // select requested matching gen particle
     matchingID = false;
     for (unsigned int i = 0; i < matchingIDs_.size(); i++) {
       if (mcIter->pdgId() == matchingIDs_[i]) {
         matchingID = true;
-        /*                // DEBUG LINES - KEEP IT !
-			std::cout << "\nMatching mis-reco : matchingIDs_.size() = " << matchingIDs_.size() << ", evt ID = " << iEvent.id() ; 
-            std::cout << ", mcIter pdgID : " << mcIter->pdgId() << ", matchingID : " << matchingID << std::endl ; 
-                // DEBUG LINES - KEEP IT !  */
       }
     }
     if (matchingID) {
@@ -3422,27 +3399,12 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       const Candidate *mother = mcIter->mother();
       matchingMotherID = false;
       for (unsigned int i = 0; i < matchingMotherIDs_.size(); i++) {
-        /*                // DEBUG LINES - KEEP IT !
-                std::cout << "Matching : matchingMotherID[" << ii << "] : "<< matchingMotherIDs_[ii]  << ", evt ID = " << iEvent.id() << ", mother : "  << mother ; 
-                if (mother != 0) { 
-			        std::cout << "mother : " << mother << ", mother pdgID : " << mother->pdgId() << std::endl ; 
-                    std::cout << "mother pdgID : " << mother->pdgId() << ", Pt : " << mother->pt() << ", eta : " << mother->eta() << ", phi : " << mother->phi() << std::endl; 
-                }
-                else { 
-                    std::cout << std::endl; 
-                } 
-                // DEBUG LINES - KEEP IT !  */
 
         if (mother == nullptr) {
           matchingMotherID = true;
         } else if (mother->pdgId() == matchingMotherIDs_[i]) {
           if (mother->numberOfDaughters() <= 2) {
             matchingMotherID = true;
-            /*                // DEBUG LINES - KEEP IT !
-			    std::cout << "Matching mis-reco : matchingMotherID[" << i << "] : " << matchingMotherIDs_[i] << ", evt ID = " << iEvent.id() << ", mother : " << mother ; // debug lines
-                std::cout << "evt ID = " << iEvent.id() ;                                                                                                                 // debug lines
-                std::cout << " - nb of Daughters : " << mother->numberOfDaughters() << " - pdgId() : " << mother->pdgId() << std::endl;                                   // debug lines
-                // DEBUG LINES - KEEP IT !  */
           }
         }  // end of mother if test
       }
@@ -3450,10 +3412,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
         if (mcIter->pt() > maxPt_ || std::abs(mcIter->eta()) > maxAbsEta_) {
           continue;
         }
-        // suppress the endcaps
-        //if (std::abs(mcIter->eta()) > 1.5) continue;
-        // select central z
-        //if ( std::abs(mcIter->production_vertex()->position().z())>50.) continue;
 
         // looking for the best matching gsf electron
         bool okGsfFound = false;
@@ -3461,23 +3419,22 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
         // find best matched electron
         reco::GsfElectron bestGsfElectron;
-        reco::GsfElectronCollection::const_iterator gsfIter;
-        for (gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
-          double dphi = gsfIter->phi() - mcIter->phi();
+        for (gsfIter3 = localCollection.begin(); gsfIter3 != localCollection.end(); gsfIter3++) {
+          double dphi = gsfIter3->phi() - mcIter->phi();
           if (std::abs(dphi) > CLHEP::pi) {
             dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
           }
-          double deltaR2 = (gsfIter->eta() - mcIter->eta()) * (gsfIter->eta() - mcIter->eta()) + dphi * dphi;
+          double deltaR2 = (gsfIter3->eta() - mcIter->eta()) * (gsfIter3->eta() - mcIter->eta()) + dphi * dphi;
           if (deltaR2 < deltaR2_) {
             double mc_charge = mcIter->pdgId() == 11 ? -1. : 1.;
-            h1_ele_ChargeMnChargeTrue->Fill(std::abs(gsfIter->charge() - mc_charge));
+            h1_ele_ChargeMnChargeTrue->Fill(std::abs(gsfIter3->charge() - mc_charge));
             // require here a charge mismatch
-            if (((mcIter->pdgId() == 11) && (gsfIter->charge() > 0.)) ||
-                ((mcIter->pdgId() == -11) && (gsfIter->charge() < 0.))) {
-              double tmpGsfRatio = gsfIter->p() / mcIter->p();
+            if (((mcIter->pdgId() == 11) && (gsfIter3->charge() > 0.)) ||
+                ((mcIter->pdgId() == -11) && (gsfIter3->charge() < 0.))) {
+              double tmpGsfRatio = gsfIter3->p() / mcIter->p();
               if (std::abs(tmpGsfRatio - 1) < std::abs(gsfOkRatio - 1)) {
                 gsfOkRatio = tmpGsfRatio;
-                bestGsfElectron = *gsfIter;
+                bestGsfElectron = *gsfIter3;
                 okGsfFound = true;
               }
             }
@@ -3527,15 +3484,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     for (unsigned int i = 0; i < matchingMotherIDs_.size(); i++) {
       if ((mother == nullptr) || ((mother != nullptr) && mother->pdgId() == matchingMotherIDs_[i])) {
         matchingMotherID = true;
-        /*                // DEBUG LINES - KEEP IT !
-			std::cout << "Matching mc-reco : matchingMotherID[" << i << "] : " << matchingMotherIDs_[i] << ", evt ID = " << iEvent.id() << ", mother : " << mother ; 
-            if (mother != 0) {
-                std::cout << ", mother pdgID : " << mother->pdgId() << std::endl ; 
-            }
-            else {
-                std::cout << std::endl ; 
-            }
-                // DEBUG LINES - KEEP IT !  */
       }
     }
     if (!matchingMotherID)
@@ -3545,11 +3493,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     if (mcIter->pt() > maxPt_ || std::abs(mcIter->eta()) > maxAbsEta_) {
       continue;
     }
-
-    // suppress the endcaps
-    //if (std::abs(mcIter->eta()) > 1.5) continue;
-    // select central z
-    //if ( std::abs(mcIter->production_vertex()->position().z())>50.) continue;
 
     eleNum++;
     h1_mc_Eta->Fill(mcIter->eta());
@@ -3565,31 +3508,28 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     bool passMiniAODSelection = true;
     double gsfOkRatio = 999999.;
     reco::GsfElectron bestGsfElectron;
-    reco::GsfElectronRef bestGsfElectronRef;
-    reco::GsfElectronCollection::const_iterator gsfIter;
-    reco::GsfElectronCollection::size_type iElectron;
-    for (gsfIter = gsfElectrons->begin(), iElectron = 0; gsfIter != gsfElectrons->end(); gsfIter++, iElectron++) {
+    
+    for (gsfIter3 = localCollection.begin(); gsfIter3 != localCollection.end(); gsfIter3++) {        
       // temporary cut for pt < 5.
-      double dphi = gsfIter->phi() - mcIter->phi();
+      double dphi = gsfIter3->phi() - mcIter->phi();
       if (std::abs(dphi) > CLHEP::pi) {
         dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
       }
-      double deltaR2 = (gsfIter->eta() - mcIter->eta()) * (gsfIter->eta() - mcIter->eta()) + dphi * dphi;
+      double deltaR2 = (gsfIter3->eta() - mcIter->eta()) * (gsfIter3->eta() - mcIter->eta()) + dphi * dphi;
       if (deltaR2 < deltaR2_) {
-        if (((mcIter->pdgId() == 11) && (gsfIter->charge() < 0.)) ||
-            ((mcIter->pdgId() == -11) && (gsfIter->charge() > 0.))) {
-          double tmpGsfRatio = gsfIter->p() / mcIter->p();
+        if (((mcIter->pdgId() == 11) && (gsfIter3->charge() < 0.)) ||
+            ((mcIter->pdgId() == -11) && (gsfIter3->charge() > 0.))) {
+          double tmpGsfRatio = gsfIter3->p() / mcIter->p();
           if (std::abs(tmpGsfRatio - 1) < std::abs(gsfOkRatio - 1)) {
             gsfOkRatio = tmpGsfRatio;
-            bestGsfElectron = *gsfIter;
-            bestGsfElectronRef = reco::GsfElectronRef(gsfElectrons, iElectron);
+            bestGsfElectron = *gsfIter3;
             okGsfFound = true;
 
-            //std::cout << "evt ID : " << iEvent.id() << " - Pt : " << bestGsfElectron.pt() << " - eta : " << bestGsfElectron.eta() << " - phi : " << bestGsfElectron.phi() << std::endl; // debug lines
           }
         }
       }
     }  // loop over rec ele to look for the best one
+    
     if (!okGsfFound)
       continue;
 
