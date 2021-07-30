@@ -17,7 +17,7 @@ electronMcSignalHistosCfg = cms.PSet(
     Nbinmee=cms.int32(100), Meemin=cms.double(0.0), Meemax=cms.double(150.),
     Nbinhoe=cms.int32(100), Hoemin=cms.double(0.0), Hoemax=cms.double(0.5),
     Nbinpoptrue=cms.int32(75), Poptruemin=cms.double(0.0), Poptruemax=cms.double(1.5),
-    EfficiencyFlag=cms.bool(True), StatOverflowFlag=cms.bool(False)
+    EfficiencyFlag=cms.bool(True), StatOverflowFlag=cms.bool(False),
     NbinELE = cms.int32(11), ELE_min = cms.double(-0.5), ELE_max = cms.double(10.5), # ELE : recEleNum
 )
 
