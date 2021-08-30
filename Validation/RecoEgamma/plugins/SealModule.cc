@@ -14,6 +14,8 @@
 #include "Validation/RecoEgamma/plugins/ElectronConversionRejectionValidator.h"
 #include "Validation/RecoEgamma/plugins/ElectronMcMiniAODSignalValidator.h"
 #include "Validation/RecoEgamma/plugins/ElectronMcMiniAODSignalPostValidator.h"
+#include "Validation/RecoEgamma/plugins/chichiMiniAODAnalyzer.h"
+#include "Validation/RecoEgamma/plugins/chichiRECOAnalyzer.h"
 
 DEFINE_FWK_MODULE(EgammaObjects);
 DEFINE_FWK_MODULE(ElectronMcSignalValidatorMiniAOD);
@@ -28,3 +30,6 @@ DEFINE_FWK_MODULE(ElectronMcSignalPostValidator);
 DEFINE_FWK_MODULE(ElectronMcFakeValidator);
 DEFINE_FWK_MODULE(ElectronMcFakePostValidator);
 DEFINE_FWK_MODULE(ElectronConversionRejectionValidator);
+DEFINE_FWK_MODULE(chichiMiniAODAnalyzer);
+DEFINE_FWK_MODULE(chichiRECOAnalyzer);
+
