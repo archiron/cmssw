@@ -429,6 +429,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
   edm::LogInfo("ElectronMcSignalValidatorMiniAOD::analyze")
       << "Treating event " << iEvent.id() << " with " << electrons_endcaps.product()->size()
       << " multi slimmed electrons";
+
   h1_recEleNum->Fill((*electrons).size());
 
   //===============================================
@@ -473,7 +474,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
       h1_ele_mee_all->Fill(sqrt(mee2));
       if (el3->charge() * el4->charge() < 0.) {
         h1_ele_mee_os->Fill(sqrt(mee2));
-      }/**/
+      }
     }
   }
 
@@ -527,6 +528,8 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
     bool okGsfFound = false;
     bool passMiniAODSelection = true;
     double gsfOkRatio = 999999.;
+    bool isEBflag = false;
+    bool isEEflag = false; 
     pat::Electron bestGsfElectron;
 
     for (el3 = localCollection.begin(); el3 != localCollection.end(); el3++) {
@@ -544,10 +547,10 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
             gsfOkRatio = tmpGsfRatio;
             bestGsfElectron = *el3;
             okGsfFound = true;
-            }
           }
         }
-      } // end *electrons loop
+      }
+    } // end *electrons loop
 
     if (okGsfFound) {
       //------------------------------------
@@ -555,6 +558,8 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
       //------------------------------------
       passMiniAODSelection = bestGsfElectron.pt() >= 5.;
       double one_over_pt = 1. / bestGsfElectron.pt();
+      isEBflag = bestGsfElectron.isEB();
+      isEEflag = bestGsfElectron.isEE();
 
       // electron related distributions
       h1_ele_vertexPt->Fill(bestGsfElectron.pt());
@@ -592,7 +597,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
                                                    one_over_pt);
         h1_ele_photonRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt * one_over_pt);
 
-        if (bestGsfElectron.isEB()) {
+        if (isEBflag) {
           // supercluster related distributions
           h1_scl_SigIEtaIEta_mAOD_barrel->Fill(bestGsfElectron.scSigmaIEtaIEta());
           h1_ele_dEtaSc_propVtx_mAOD_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
@@ -610,7 +615,7 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
         }
 
         // supercluster related distributions
-        if (bestGsfElectron.isEE()) {
+        if (isEEflag) {
           h1_scl_SigIEtaIEta_mAOD_endcaps->Fill(bestGsfElectron.scSigmaIEtaIEta());
           h1_ele_dEtaSc_propVtx_mAOD_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
           h1_ele_dPhiCl_propOut_mAOD_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
