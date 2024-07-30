@@ -123,6 +123,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
         php.mouseBite_ = HGCalParameters::k_ScaleFromDDD * getDDDValue("MouseBite", sv2);
         php.useOffset_ = static_cast<int>(getDDDValue("UseOffset", sv2));
         php.waferR_ = HGCalParameters::k_ScaleToDDD * php.waferSize_ * tan30deg_;
+        assert(php.nCellsFine_ != 0);
+        assert(php.nCellsCoarse_ != 0);
         php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsFine_);
         php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsCoarse_);
 #ifdef EDM_ML_DEBUG
@@ -193,11 +195,13 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
                (php.mode_ == HGCalGeometryMode::TrapezoidCassette)) {
       // Load maximum eta & top level
       php.levelT_ = dbl_to_int(getDDDArray("LevelTop", sv));
+      php.levelZSide_ = static_cast<int>(getDDDValue("LevelZSide", sv));
       php.firstLayer_ = (int)(getDDDValue("FirstLayer", sv));
       php.firstMixedLayer_ = (int)(getDDDValue("FirstMixedLayer", sv));
       php.detectorType_ = (int)(getDDDValue("DetectorType", sv));
       php.waferThick_ = HGCalParameters::k_ScaleFromDDD * getDDDValue("WaferThickness", sv);
       php.minTileSize_ = HGCalParameters::k_ScaleFromDDD * getDDDValue("MinimumTileSize", sv);
+      php.nCellsFine_ = php.nCellsCoarse_ = 0;
       php.waferSize_ = php.waferR_ = 0;
       php.sensorSeparation_ = php.mouseBite_ = 0;
       php.sensorSizeOffset_ = php.guardRingOffset_ = php.useOffset_ = 0;
@@ -282,6 +286,10 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
     php.useSimWt_ = 1;          // energy weighting for SimHits
     php.layerRotation_ = 0;     // default layer rotation angle
     php.cassettes_ = 0;         // default number of cassettes
+    php.nphiCassette_ = 0;      // default number of phi's per cassette
+    php.phiOffset_ = 0;         // default value of phi offset for cassette
+    php.calibCellRHD_ = 0;      // default value of R of HD calibration cells
+    php.calibCellRLD_ = 0;      // default value of R of LD calibration cells
     std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
       tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");
@@ -355,6 +363,8 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       tempD = fv.get<std::vector<double> >(namet, "UseOffset");
       php.useOffset_ = static_cast<int>(tempD[0]);
       php.waferR_ = HGCalParameters::k_ScaleToDDD * php.waferSize_ * tan30deg_;
+      assert(php.nCellsFine_ != 0);
+      assert(php.nCellsCoarse_ != 0);
       php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsFine_);
       php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsCoarse_);
 #ifdef EDM_ML_DEBUG
@@ -426,7 +436,6 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       php.levelT_ = dbl_to_int(fv.get<std::vector<double> >(name, "LevelTop"));
       tempD = fv.get<std::vector<double> >(name, "LevelZSide");
       php.levelZSide_ = static_cast<int>(tempD[0]);
-      php.nCellsFine_ = php.nCellsCoarse_ = 0;
       tempD = fv.get<std::vector<double> >(name, "FirstLayer");
       php.firstLayer_ = static_cast<int>(tempD[0]);
       tempD = fv.get<std::vector<double> >(name, "FirstMixedLayer");
@@ -437,6 +446,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       php.waferThick_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       tempD = fv.get<std::vector<double> >(name, "MinimumTileSize");
       php.minTileSize_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
+      php.nCellsFine_ = php.nCellsCoarse_ = 0;
       php.waferSize_ = php.waferR_ = 0;
       php.sensorSeparation_ = php.mouseBite_ = 0;
       php.sensorSizeOffset_ = php.guardRingOffset_ = php.useOffset_ = 0;
@@ -496,6 +506,7 @@ void HGCalParametersFromDD::getCellPosition(HGCalParameters& php, int type) {
   std::vector<int> indtypes;
 #endif
   int N = (type == 1) ? php.nCellsCoarse_ : php.nCellsFine_;
+  assert(N != 0);
   double R = php.waferSize_ / (3 * N);
   double r = 0.5 * R * sqrt(3.0);
   int n2 = N / 2;

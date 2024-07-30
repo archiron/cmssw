@@ -41,6 +41,7 @@ numWFIB.extend([30034.0]) #2026D111
 numWFIB.extend([30434.0]) #2026D112
 numWFIB.extend([30834.0]) #2026D113
 numWFIB.extend([31234.0]) #2026D114
+numWFIB.extend([32034.0]) #2026D115
 
 #Additional sample for short matrix and IB
 #Default Phase-2 Det NoPU
@@ -61,6 +62,7 @@ numWFIB.extend([prefixDet+234.999])  #premixing combined stage1+stage2 ttbar+PU5
 numWFIB.extend([prefixDet+234.21])   #prodlike PU
 numWFIB.extend([prefixDet+234.9921]) #prodlike premix stage1+stage2
 numWFIB.extend([prefixDet+234.114])  #PU, with 10% OT inefficiency
-
+#
+numWFIB.extend([24834.911]) #D98 XML, to monitor instability of DD4hep
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]
